@@ -31,7 +31,12 @@ def login():
     user = db.session.query(User).filter(User.email == body['email']).one()
     if bcrypt.checkpw(body['password'].encode(), user.password.encode()):
         create_token = create_access_token(identity=user.serialize())
-        return jsonify(create_token), 200
+        return jsonify({'token': create_token}), 200
     else:
         return jsonify('Cant login'), 403
-    
+
+@api.route('/user/<int:id>', methods=['GET'])
+@jwt_required()
+def get_user_id(id):
+    user = User.query.get(id)
+    return jsonify({'user': user.serialize()}), 201
